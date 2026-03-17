@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Clinical Data Quality Tool · Q2BI · Suriyapriya Selvanathan</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='16' fill='%231B2E5E'/><text y='72' x='50' text-anchor='middle' font-size='46' font-family='Inter,sans-serif' font-weight='800' fill='%23F5A623'>Q2</text></svg>"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --navy:   #1B2E5E;
+  --navy2:  #2A4480;
+  --orange: #F5A623;
+  --orange2:#F7BE5A;
+  --red:    #E04040;
+  --amber:  #F5A623;
+  --green:  #2E9E6B;
+  --ink:    #0D1829;
+  --muted:  #3A4E6B;
+  --subtle: #7A90AA;
+  --border: rgba(27,46,94,0.12);
+  --border2: rgba(27,46,94,0.22);
+  --bg:     #F4F6FB;
+  --card:   #FFFFFF;
+  --surface:#EEF2FA;
+  --light:  #E4EAF8;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 15px; }
+body { overflow-x: hidden; font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--ink); -webkit-font-smoothing: antialiased; }
+.page { max-width: 900px; margin: 0 auto; padding: 0 20px 60px; overflow-x: hidden; }
+
+/* TOP BAR */
+.top-bar { background: var(--navy); margin: 0 -20px; padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.top-bar-brand { display: flex; align-items: center; gap: 10px; }
+.top-bar-logo { font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 800; color: #fff; letter-spacing: -0.3px; }
+.top-bar-logo span { color: var(--orange); }
+.top-bar-subtitle { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: rgba(255,255,255,0.45); letter-spacing: 1.5px; text-transform: uppercase; }
+.top-bar-r { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: rgba(255,255,255,0.5); display: flex; align-items: center; gap: 6px; }
+.live { width: 5px; height: 5px; border-radius: 50%; background: var(--orange); animation: blink 2s ease-in-out infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+/* HERO */
+.hero { background: var(--navy); margin: 0 -20px; padding: 40px 40px 36px; position: relative; overflow: hidden; }
+.hero::after { content: 'CDM'; position: absolute; right: -10px; top: -10px; font-family: 'Inter', sans-serif; font-size: 160px; font-weight: 800; color: rgba(255,255,255,0.03); line-height: 1; pointer-events: none; user-select: none; }
+.hero-eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--orange); margin-bottom: 14px; font-weight: 400; }
+.hero-h1 { font-family: 'Inter', sans-serif; font-size: clamp(20px, 3vw, 28px); font-weight: 700; color: #fff; line-height: 1.2; letter-spacing: -0.5px; max-width: 560px; margin-bottom: 10px; }
+.hero-h1 em { font-style: normal; color: var(--orange2); }
+.hero-sub { font-size: 13px; color: rgba(255,255,255,0.55); line-height: 1.7; max-width: 560px; margin-bottom: 24px; font-weight: 300; }
+
+/* CANDIDATE BOX */
+.-box { background: rgba(245,166,35,0.12); border: 1px solid rgba(245,166,35,0.28); border-radius: 10px; padding: 18px 20px; margin-top: 0; }
+.cand-label { font-family: 'JetBrains Mono', monospace; font-size: 8.5px; letter-spacing: 2px; text-transform: uppercase; color: var(--orange); margin-bottom: 10px; font-weight: 400; }
+.cand-name { font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 3px; }
+.cand-title { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: rgba(255,255,255,0.4); margin-bottom: 14px; font-weight: 300; }
+.cand-bullets { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+.cand-bullets li { display: flex; gap: 10px; align-items: flex-start; font-size: 12.5px; color: rgba(255,255,255,0.82); line-height: 1.6; font-weight: 300; }
+.cand-bullets li span.dot { color: var(--orange); font-size: 16px; line-height: 1.2; flex-shrink: 0; }
+.cand-bullets li strong { color: #fff; font-weight: 600; }
+
+/* BODY */
+.body { background: var(--card); border: 1px solid var(--border); border-top: none; border-radius: 0 0 12px 12px; padding: 32px 32px 36px; margin: 0 -20px; }
+
+.tool-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--navy); font-weight: 500; margin-bottom: 6px; }
+.tool-title { font-family: 'Inter', sans-serif; font-size: 18px; font-weight: 700; color: var(--ink); letter-spacing: -0.3px; margin-bottom: 6px; }
+.tool-desc { font-size: 13px; color: var(--muted); line-height: 1.7; margin-bottom: 24px; font-weight: 300; max-width: 600px; }
+
+/* TABS */
+.tabs { display: flex; gap: 4px; margin-bottom: 20px; border-bottom: 1.5px solid var(--border2); padding-bottom: 0; }
+.tab { font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600; padding: 8px 16px; cursor: pointer; color: var(--subtle); border-bottom: 2.5px solid transparent; margin-bottom: -1.5px; transition: color 0.15s, border-color 0.15s; white-space: nowrap; }
+.tab:hover { color: var(--navy); }
+.tab.active { color: var(--navy); border-bottom-color: var(--navy); }
+
+/* UPLOAD ZONE */
+.upload-zone { border: 1.5px dashed var(--border2); border-radius: 8px; padding: 24px; text-align: center; cursor: pointer; transition: border-color 0.15s, background 0.15s; margin-bottom: 16px; }
+.upload-zone:hover { border-color: var(--navy2); background: var(--surface); }
+.upload-icon { font-size: 28px; margin-bottom: 8px; }
+.upload-text { font-size: 13px; color: var(--muted); margin-bottom: 4px; }
+.upload-sub { font-size: 11px; color: var(--subtle); font-family: 'JetBrains Mono', monospace; }
+.or-divider { display: flex; align-items: center; gap: 10px; margin: 12px 0; }
+.or-divider::before, .or-divider::after { content: ''; flex: 1; height: 0.5px; background: var(--border2); }
+.or-text { font-size: 11px; color: var(--subtle); font-family: 'JetBrains Mono', monospace; }
+
+/* SAMPLE DATA BTN */
+.sample-btn { font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600; padding: 9px 18px; background: var(--surface); color: var(--navy); border: 1px solid var(--border2); border-radius: 6px; cursor: pointer; transition: background 0.15s; width: 100%; }
+.sample-btn:hover { background: var(--light); }
+
+/* RESULTS */
+.results-section { display: none; }
+.results-section.show { display: block; }
+
+.scorecard { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
+.score-card { background: var(--surface); border-radius: 8px; padding: 14px 12px; text-align: center; border: 0.5px solid var(--border); }
+.score-val { font-family: 'Inter', sans-serif; font-size: 24px; font-weight: 800; display: block; letter-spacing: -0.5px; }
+.score-val.green { color: var(--green); }
+.score-val.amber { color: var(--amber); }
+.score-val.red { color: var(--red); }
+.score-label { font-size: 10px; color: var(--subtle); font-family: 'JetBrains Mono', monospace; margin-top: 3px; line-height: 1.4; }
+
+/* QUERY TABLE */
+.query-table-wrap { overflow-x: auto; margin-bottom: 20px; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+thead tr { background: var(--navy); color: #fff; }
+thead th { padding: 9px 12px; text-align: left; font-family: 'JetBrains Mono', monospace; font-size: 9.5px; letter-spacing: 1px; font-weight: 500; }
+tbody tr { border-bottom: 0.5px solid var(--border); transition: background 0.1s; }
+tbody tr:hover { background: var(--surface); }
+tbody td { padding: 9px 12px; color: var(--muted); vertical-align: top; line-height: 1.5; }
+tbody td.subject { color: var(--ink); font-weight: 500; font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+
+.severity { display: inline-flex; align-items: center; gap: 4px; font-size: 9px; font-family: 'JetBrains Mono', monospace; font-weight: 600; padding: 2px 7px; border-radius: 3px; letter-spacing: 0.5px; white-space: nowrap; }
+.sev-critical { background: #fdeaea; color: #8b1e1e; border: 0.5px solid #f5aaaa; }
+.sev-major    { background: #fff3e0; color: #7a3800; border: 0.5px solid #f0b870; }
+.sev-minor    { background: #e8f4ff; color: #0a3d6b; border: 0.5px solid #90c8f8; }
+.status-open   { color: var(--red); font-weight: 600; font-size: 11px; }
+.status-closed { color: var(--green); font-weight: 600; font-size: 11px; }
+
+/* EDIT CHECK SPECS */
+.spec-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+.spec-card { border: 0.5px solid var(--border2); border-radius: 8px; padding: 14px; }
+.spec-card.triggered { border-color: var(--red); background: #fff8f8; }
+.spec-card.passed { border-color: var(--green); background: #f6fbf8; }
+.spec-name { font-size: 12px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+.spec-rule { font-size: 11px; color: var(--subtle); font-family: 'JetBrains Mono', monospace; margin-bottom: 6px; }
+.spec-result { font-size: 11px; font-weight: 600; }
+.spec-result.pass { color: var(--green); }
+.spec-result.fail { color: var(--red); }
+
+/* SUBJECT TIMELINE */
+.subject-select { font-family: 'Inter', sans-serif; font-size: 12px; padding: 8px 12px; border: 0.5px solid var(--border2); border-radius: 6px; background: var(--card); color: var(--ink); margin-bottom: 16px; cursor: pointer; }
+.timeline-row { display: grid; grid-template-columns: 100px 1fr; gap: 12px; margin-bottom: 12px; align-items: center; }
+.visit-label { font-size: 11px; font-family: 'JetBrains Mono', monospace; color: var(--subtle); }
+.visit-bar { height: 28px; border-radius: 4px; display: flex; align-items: center; padding: 0 10px; font-size: 11px; font-weight: 600; color: #fff; transition: width 0.4s ease; }
+.bar-complete { background: var(--green); }
+.bar-partial  { background: var(--amber); }
+.bar-missing  { background: var(--red); }
+
+/* RUN BUTTON */
+.run-btn { font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 700; padding: 12px 28px; background: var(--navy); color: #fff; border: none; border-radius: 7px; cursor: pointer; transition: background 0.15s, transform 0.1s; display: flex; align-items: center; gap: 8px; }
+.run-btn:hover { background: var(--navy2); transform: translateY(-1px); }
+.run-btn:active { transform: translateY(0); }
+
+.divider { height: 1px; background: var(--border); margin: 24px 0; }
+
+/* SAE SECTION */
+.sae-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.sae-card { border: 0.5px solid var(--border2); border-radius: 8px; padding: 14px; }
+.sae-id { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--subtle); margin-bottom: 4px; }
+.sae-event { font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 6px; }
+.sae-row { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); padding: 3px 0; border-bottom: 0.5px solid var(--border); }
+.sae-row:last-child { border: none; }
+.sae-match { font-weight: 600; }
+.sae-match.ok { color: var(--green); }
+.sae-match.mismatch { color: var(--red); }
+
+/* FOOTER */
+.footer { margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+.footer-author { display: flex; align-items: center; gap: 10px; }
+.footer-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--navy); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 12px; color: #fff; border: 2px solid var(--orange); flex-shrink: 0; }
+.footer-name { font-size: 13px; font-weight: 700; color: var(--ink); }
+.footer-sub { font-size: 10px; color: var(--subtle); font-family: 'JetBrains Mono', monospace; margin-top: 2px; }
+.footer-ctas { display: flex; gap: 8px; flex-wrap: wrap; }
+.cta-p { font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 700; padding: 9px 18px; background: var(--navy); color: #fff; border: none; border-radius: 6px; cursor: pointer; text-decoration: none; transition: background 0.15s; }
+.cta-p:hover { background: var(--navy2); }
+.cta-s { font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 600; padding: 9px 16px; background: transparent; color: var(--navy); border: 0.5px solid var(--border2); border-radius: 6px; cursor: pointer; text-decoration: none; transition: background 0.15s; }
+.cta-s:hover { background: var(--surface); }
+
+@media(max-width:600px){
+  .hero{padding:28px 20px 24px;}
+  .body{padding:22px 18px 26px;}
+  .scorecard{grid-template-columns:1fr 1fr;}
+  .spec-grid{grid-template-columns:1fr;}
+  .sae-grid{grid-template-columns:1fr;}
+  .tabs{flex-wrap:wrap;}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="top-bar">
+    <div class="top-bar-brand">
+      <div class="top-bar-logo">Q<span>2</span>BI</div>
+      <div class="top-bar-subtitle">Clinical Data Quality Tool · Prototype</div>
+    </div>
+    <div class="top-bar-r"><span class="live"></span>Demo · Built by </div>
+  </div>
+
+  <div class="hero">
+    <div class="hero-eyebrow">Associate CDM · Cambridge, MA · March 2026</div>
+    <h1 class="hero-h1">A working prototype of <em>clinical data validation</em> · built to show what day-one contribution looks like.</h1>
+    <p class="hero-sub">This tool demonstrates the core responsibilities of Q2BI's Associate CDM role: data quality review, query generation, edit check validation, and SAE reconciliation · </p>
+
+    <div class="-box">
+      <div class="cand-label">Why Suriyapriya</div>
+      <div class="cand-name">Suriyapriya Selvanathan</div>
+      <div class="cand-title">MS Health Care Analytics &amp; IT · Carnegie Mellon University · Biomedical Engineering · PSG College of Technology</div>
+      <ul class="cand-bullets">
+        <li><span class="dot">·</span><span><strong>Biomedical Engineering foundation</strong> · understands clinical workflows, trial protocols, and patient data natively. Not a learning curve · a head start on domain expertise Q2BI's team values above all else</span></li>
+        <li><span class="dot">·</span><span><strong>Built clinical data validation pipelines at AHN</strong> · created data quality modules catching anomalies across 15,000+ real-world health screening records. Direct analog to CDM data review and query management</span></li>
+        <li><span class="dot">·</span><span><strong>SQL + Python proficiency in production</strong> · engineered data workflows on Highmark's administrative claims and clinical data. Q2BI's edit check specifications and UAT require exactly this technical foundation</span></li>
+        <li><span class="dot">·</span><span><strong>NLP on unstructured clinical text</strong> · built ViT + BERT system abstracting clinical concepts from EHR records. Directly applicable to Q2BI's growing AI investment through JDIX, their AI spinout launched March 2026</span></li>
+        <li><span class="dot">·</span><span><strong>CDISC-adjacent work</strong> · longitudinal patient records built at AHN follow structured data standards for time-series clinical analysis. Ready to formalize into CDASH/SDTM/ADaM with Q2BI's guidance</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="body">
+
+    <div class="tool-label">Interactive Demo Tool</div>
+    <div class="tool-title">Clinical Trial Data Quality Platform</div>
+    <p class="tool-desc">Load sample Phase II oncology trial data and run validation checks across four core CDM functions. Every check below maps directly to a responsibility in the Associate CDM job description.</p>
+
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('query')">Query Management</div>
+      <div class="tab" onclick="switchTab('editcheck')">Edit Check Specs</div>
+      <div class="tab" onclick="switchTab('completeness')">Data Completeness</div>
+      <div class="tab" onclick="switchTab('sae')">SAE Reconciliation</div>
+      <div class="tab" onclick="switchTab('rave')">Medidata Rave · CRF Review</div>
+    </div>
+
+    <!-- QUERY MANAGEMENT TAB -->
+    <div id="tab-query">
+      <p style="font-size:12px;color:var(--muted);margin-bottom:16px;font-weight:300;">Automatically generates, categorizes, and tracks data queries from incoming clinical trial data · mimicking the query generation and resolution workflow Q2BI manages across studies.</p>
+      <button class="run-btn" onclick="runQueryCheck()">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7L6 11L12 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Load Sample Data &amp; Generate Queries
+      </button>
+
+      <div class="results-section" id="query-results" style="margin-top:20px;">
+        <div class="scorecard">
+          <div class="score-card"><span class="score-val red" id="open-queries">0</span><div class="score-label">Open queries</div></div>
+          <div class="score-card"><span class="score-val green" id="closed-queries">0</span><div class="score-label">Closed queries</div></div>
+          <div class="score-card"><span class="score-val amber" id="critical-queries">0</span><div class="score-label">Critical flags</div></div>
+          <div class="score-card"><span class="score-val" id="query-rate" style="color:var(--navy)">0%</span><div class="score-label">Query resolution rate</div></div>
+        </div>
+        <div class="query-table-wrap">
+          <table>
+            <thead><tr>
+              <th>Subject ID</th><th>Visit</th><th>Field</th><th>Query Description</th><th>Severity</th><th>Status</th>
+            </tr></thead>
+            <tbody id="query-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- EDIT CHECK TAB -->
+    <div id="tab-editcheck" style="display:none;">
+      <p style="font-size:12px;color:var(--muted);margin-bottom:16px;font-weight:300;">Validates data against edit check specifications · the programmatic rules that catch protocol deviations, out-of-range values, and logical inconsistencies before they reach the database lock.</p>
+      <button class="run-btn" onclick="runEditChecks()">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7L6 11L12 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Run Edit Check Validation
+      </button>
+      <div class="results-section" id="editcheck-results" style="margin-top:20px;">
+        <div class="spec-grid" id="spec-grid"></div>
+      </div>
+    </div>
+
+    <!-- COMPLETENESS TAB -->
+    <div id="tab-completeness" style="display:none;">
+      <p style="font-size:12px;color:var(--muted);margin-bottom:16px;font-weight:300;">Reviews incoming clinical data for completeness and consistency across visits and subjects · the core daily task of a Clinical Data Manager at Q2BI.</p>
+      <select class="subject-select" id="subject-select" onchange="renderCompleteness()">
+        <option value="001">Subject 001 · Site 01</option>
+        <option value="002">Subject 002 · Site 01</option>
+        <option value="003">Subject 003 · Site 02</option>
+        <option value="004">Subject 004 · Site 02</option>
+      </select>
+      <div id="completeness-chart"></div>
+    </div>
+
+
+    <!-- MEDIDATA RAVE TAB -->
+    <div id="tab-rave" style="display:none;">
+      <p style="font-size:12px;color:var(--muted);margin-bottom:16px;font-weight:300;">Simulates a Medidata Rave-style CRF (Case Report Form) review · the EDC system Q2BI uses as a certified Medidata partner. Reviews subject data entry across visit forms, flags incomplete or out-of-range fields, and generates queries exactly as a CDM would in the EDC system.</p>
+      <div style="display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap;">
+        <select id="rave-subject" style="font-family:'Inter',sans-serif;font-size:12px;padding:8px 12px;border:0.5px solid var(--border2);border-radius:6px;background:var(--card);color:var(--ink);cursor:pointer;" onchange="renderRave()">
+          <option value="001">Subject 001 · Site 01 · Cohort A</option>
+          <option value="002">Subject 002 · Site 01 · Cohort A</option>
+          <option value="003">Subject 003 · Site 02 · Cohort B</option>
+          <option value="004">Subject 004 · Site 02 · Cohort B</option>
+        </select>
+        <select id="rave-visit" style="font-family:'Inter',sans-serif;font-size:12px;padding:8px 12px;border:0.5px solid var(--border2);border-radius:6px;background:var(--card);color:var(--ink);cursor:pointer;" onchange="renderRave()">
+          <option value="scr">Screening</option>
+          <option value="base">Baseline</option>
+          <option value="wk4">Week 4</option>
+          <option value="wk8">Week 8</option>
+          <option value="wk12">Week 12</option>
+        </select>
+      </div>
+      <div id="rave-content"></div>
+    </div>
+
+    <!-- SAE RECONCILIATION TAB -->
+    <div id="tab-sae" style="display:none;">
+      <p style="font-size:12px;color:var(--muted);margin-bottom:16px;font-weight:300;">Reconciles Serious Adverse Events between the clinical database and safety database · a critical regulatory requirement under ICH-GCP that Q2BI's CDM team manages across all studies.</p>
+      <button class="run-btn" onclick="runSAEReconciliation()">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7L6 11L12 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Run SAE Reconciliation Check
+      </button>
+      <div class="results-section" id="sae-results" style="margin-top:20px;">
+        <div class="sae-grid" id="sae-grid"></div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="footer">
+      <div class="footer-author">
+        <div class="footer-avatar">SS</div>
+        <div>
+          <div class="footer-name">Suriyapriya Selvanathan</div>
+          <div class="footer-sub">MS Health Care Analytics &amp; IT · Carnegie Mellon · Biomedical Engineering · <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="3d4e4e58514b5c535c7d5c53594f584a135e504813585948">[email&#160;protected]</a></div>
+        </div>
+      </div>
+      <div class="footer-ctas">
+        <a class="cta-p" href="#" onclick="window.location='mail'+'to:sselvana'+'@andrew.cmu.edu?subject=Q2BI%20CDM%20Role%20%C2%B7%20Let%27s%20talk';return false;">Contact Suriyapriya →</a>
+        <a class="cta-s" href="https://ssuriyapriya.github.io/" target="_blank">Full portfolio ↗</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<script>
+var QUERIES = [
+  {subj:'001',visit:'Week 4',field:'VSSBP',desc:'Systolic blood pressure 210 mmHg exceeds upper limit of normal (180). Confirm or correct value.',sev:'critical',status:'open'},
+  {subj:'002',visit:'Baseline',field:'AEDECOD',desc:'Adverse event term not coded to MedDRA preferred term. Medical coding required.',sev:'major',status:'open'},
+  {subj:'001',visit:'Week 8',field:'LBTEST',desc:'Serum creatinine result missing. Lab data not received from central lab. Pending external data integration.',sev:'major',status:'open'},
+  {subj:'003',visit:'Week 4',field:'CMTRT',desc:'Concomitant medication Ibuprofen not included on study medication log. Please clarify.',sev:'minor',status:'closed'},
+  {subj:'004',visit:'Baseline',field:'DMDTC',desc:'Date of informed consent precedes date of first dose in CRF. Inconsistent dates · please verify.',sev:'critical',status:'open'},
+  {subj:'002',visit:'Week 12',field:'ECDOSE',desc:'Study drug dose recorded as 150mg. Protocol specifies 100mg for this cohort. Confirm protocol deviation.',sev:'critical',status:'open'},
+  {subj:'003',visit:'Week 8',field:'QSTEST',desc:'ECOG performance status not recorded at Week 8 visit. Required per protocol.',sev:'major',status:'closed'},
+  {subj:'004',visit:'Week 4',field:'VSDBP',desc:'Diastolic blood pressure value missing for Week 4 visit. Please confirm if not collected.',sev:'minor',status:'closed'},
+];
+
+var EDITCHECKS = [
+  {name:'Vital Signs Range Check',rule:'IF VSTEST = SYSBP THEN VSSTRESN <= 180',result:'FAIL',subject:'001 · Week 4',detail:'Value 210 exceeds protocol upper limit'},
+  {name:'Informed Consent Date',rule:'ICDAT must precede or equal first visit date',result:'FAIL',subject:'004 · Baseline',detail:'ICDAT recorded after VISITDAT'},
+  {name:'Dose Compliance Check',rule:'IF COHORT = A THEN ECDOSE = 100',result:'FAIL',subject:'002 · Week 12',detail:'Dose 150mg deviates from Cohort A protocol'},
+  {name:'Adverse Event Coding',rule:'All AEs must have MedDRA preferred term assigned',result:'FAIL',subject:'002 · Baseline',detail:'AEDECOD not populated for reported AE'},
+  {name:'Lab Value Completeness',rule:'LBSTRESN required at all scheduled visits',result:'FAIL',subject:'001 · Week 8',detail:'Creatinine result absent'},
+  {name:'Concomitant Medication Log',rule:'All CMs must be recorded if administered during study',result:'PASS',subject:'All subjects',detail:'CM log complete after query resolution'},
+  {name:'ECOG Status Required',rule:'QSSCAT = ECOG required at Weeks 4 8 12',result:'PASS',subject:'All subjects',detail:'All required ECOG entries present'},
+  {name:'Date Chronology Check',rule:'Visit dates must be in ascending chronological order',result:'PASS',subject:'All subjects',detail:'No date sequence violations detected'},
+];
+
+var COMPLETENESS = {
+  '001': [{visit:'Screening',pct:100,status:'complete'},{visit:'Baseline',pct:100,status:'complete'},{visit:'Week 4',pct:92,status:'partial'},{visit:'Week 8',pct:75,status:'partial'},{visit:'Week 12',pct:40,status:'missing'}],
+  '002': [{visit:'Screening',pct:100,status:'complete'},{visit:'Baseline',pct:88,status:'partial'},{visit:'Week 4',pct:100,status:'complete'},{visit:'Week 8',pct:100,status:'complete'},{visit:'Week 12',pct:95,status:'complete'}],
+  '003': [{visit:'Screening',pct:100,status:'complete'},{visit:'Baseline',pct:100,status:'complete'},{visit:'Week 4',pct:100,status:'complete'},{visit:'Week 8',pct:82,status:'partial'},{visit:'Week 12',pct:100,status:'complete'}],
+  '004': [{visit:'Screening',pct:100,status:'complete'},{visit:'Baseline',pct:70,status:'partial'},{visit:'Week 4',pct:90,status:'partial'},{visit:'Week 8',pct:100,status:'complete'},{visit:'Week 12',pct:100,status:'complete'}],
+};
+
+var SAE_DATA = [
+  {id:'SAE-001-01',event:'Grade 3 Neutropenia',onset:'2025-09-14',cdm_date:'2025-09-16',safety_date:'2025-09-16',related:'Yes',outcome:'Recovered',match:'ok'},
+  {id:'SAE-002-01',event:'Febrile Neutropenia',onset:'2025-10-02',cdm_date:'2025-10-04',safety_date:'2025-10-03',related:'Yes',outcome:'Hospitalized',match:'mismatch'},
+  {id:'SAE-003-01',event:'Elevated ALT Grade 3',onset:'2025-10-18',cdm_date:'2025-10-20',safety_date:'2025-10-20',related:'Possible',outcome:'Ongoing',match:'ok'},
+  {id:'SAE-004-01',event:'Pulmonary Embolism',onset:'2025-11-01',cdm_date:'2025-11-03',safety_date:'Not received',related:'Unknown',outcome:'Hospitalized',match:'mismatch'},
+];
+
+var RAVE_DATA = {
+  '001': {
+    scr:  [{field:'SUBJID',label:'Subject ID',val:'001-01',status:'ok'},{field:'BRTHDTC',label:'Date of Birth',val:'1968-04-12',status:'ok'},{field:'SEX',label:'Sex',val:'M',status:'ok'},{field:'ICDAT',label:'Informed Consent Date',val:'2025-07-01',status:'ok'},{field:'DMDTC',label:'Date of First Dose',val:'2025-07-15',status:'ok'}],
+    base: [{field:'VSSBP',label:'Systolic BP (mmHg)',val:'122',status:'ok'},{field:'VSDBP',label:'Diastolic BP (mmHg)',val:'78',status:'ok'},{field:'VSWT',label:'Weight (kg)',val:'74.2',status:'ok'},{field:'ECOG',label:'ECOG Performance Status',val:'1',status:'ok'},{field:'LBBILI',label:'Total Bilirubin',val:'0.8',status:'ok'}],
+    wk4:  [{field:'VSSBP',label:'Systolic BP (mmHg)',val:'210',status:'query',msg:'VALUE EXCEEDS PROTOCOL LIMIT (180). QUERY GENERATED.'},{field:'VSDBP',label:'Diastolic BP (mmHg)',val:'88',status:'ok'},{field:'ECDOSE',label:'Study Drug Dose (mg)',val:'100',status:'ok'},{field:'ECOG',label:'ECOG Performance Status',val:'1',status:'ok'},{field:'LBCREA',label:'Serum Creatinine',val:'',status:'missing',msg:'MISSING. LAB DATA NOT RECEIVED FROM CENTRAL LAB.'}],
+    wk8:  [{field:'VSSBP',label:'Systolic BP (mmHg)',val:'138',status:'ok'},{field:'ECDOSE',label:'Study Drug Dose (mg)',val:'100',status:'ok'},{field:'AEDECOD',label:'AE Coded Term',val:'',status:'missing',msg:'AE REPORTED BUT MedDRA CODING INCOMPLETE.'},{field:'LBCREA',label:'Serum Creatinine',val:'1.1',status:'ok'},{field:'ECOG',label:'ECOG Performance Status',val:'2',status:'ok'}],
+    wk12: [{field:'VSSBP',label:'Systolic BP (mmHg)',val:'130',status:'ok'},{field:'ECDOSE',label:'Study Drug Dose (mg)',val:'100',status:'ok'},{field:'ECOG',label:'ECOG Performance Status',val:'',status:'missing',msg:'REQUIRED FIELD NOT COMPLETED AT WEEK 12.'},{field:'DSSTERM',label:'Disposition Term',val:'COMPLETED',status:'ok'}],
+  },
+  '002': {
+    scr:  [{field:'SUBJID',label:'Subject ID',val:'002-01',status:'ok'},{field:'BRTHDTC',label:'Date of Birth',val:'1975-11-22',status:'ok'},{field:'SEX',label:'Sex',val:'F',status:'ok'},{field:'ICDAT',label:'Informed Consent Date',val:'2025-07-03',status:'ok'},{field:'DMDTC',label:'Date of First Dose',val:'2025-07-18',status:'ok'}],
+    base: [{field:'VSSBP',label:'Systolic BP (mmHg)',val:'118',status:'ok'},{field:'VSWT',label:'Weight (kg)',val:'58.5',status:'ok'},{field:'AEDECOD',label:'AE Coded Term',val:'',status:'query',msg:'ADVERSE EVENT REPORTED BUT MedDRA PREFERRED TERM NOT ASSIGNED.'},{field:'ECOG',label:'ECOG Performance Status',val:'0',status:'ok'}],
+    wk4:  [{field:'VSSBP',label:'Systolic BP (mmHg)',val:'120',status:'ok'},{field:'ECDOSE',label:'Study Drug Dose (mg)',val:'100',status:'ok'},{field:'ECOG',label:'ECOG Performance Status',val:'0',status:'ok'},{field:'LBCREA',label:'Serum Creatinine',val:'0.9',status:'ok'}],
+    wk8:  [{field:'VSSBP',label:'Systolic BP (mmHg)',val:'122',status:'ok'},{field:'ECDOSE',label:'Study Drug Dose (mg)',val:'100',status:'ok'},{field:'CMTRT',label:'Concomitant Medication',val:'Ibuprofen 400mg',status:'query',msg:'CONCOMITANT MEDICATION NOT PREVIOUSLY RECORDED. PLEASE CLARIFY START DATE.'}],
+    wk12: [{field:'VSSBP',label:'Systolic BP (mmHg)',val:'118',status:'ok'},{field:'ECDOSE',label:'Study Drug Dose (mg)',val:'150',status:'query',msg:'DOSE 150MG DEVIATES FROM COHORT A PROTOCOL (100MG). CONFIRM PROTOCOL DEVIATION.'},{field:'ECOG',label:'ECOG Performance Status',val:'0',status:'ok'},{field:'DSSTERM',label:'Disposition Term',val:'COMPLETED',status:'ok'}],
+  },
+  '003': {
+    scr:  [{field:'SUBJID',label:'Subject ID',val:'003-01',status:'ok'},{field:'SEX',label:'Sex',val:'F',status:'ok'},{field:'ICDAT',label:'Informed Consent Date',val:'2025-07-10',status:'ok'}],
+    base: [{field:'VSSBP',label:'Systolic BP (mmHg)',val:'126',status:'ok'},{field:'VSWT',label:'Weight (kg)',val:'62.0',status:'ok'},{field:'ECOG',label:'ECOG Performance Status',val:'1',status:'ok'}],
+    wk4:  [{field:'VSSBP',label:'Systolic BP (mmHg)',val:'128',status:'ok'},{field:'ECDOSE',label:'Study Drug Dose (mg)',val:'100',status:'ok'},{field:'ECOG',label:'ECOG Performance Status',val:'1',status:'ok'}],
+    wk8:  [{field:'VSSBP',label:'Systolic BP (mmHg)',val:'130',status:'ok'},{field:'ECOG',label:'ECOG Performance Status',val:'',status:'missing',msg:'ECOG STATUS NOT RECORDED AT WEEK 8. REQUIRED PER PROTOCOL.'},{field:'LBALT',label:'ALT (U/L)',val:'142',status:'query',msg:'ALT VALUE 142 U/L EXCEEDS GRADE 3 THRESHOLD. SAE ASSESSMENT REQUIRED.'}],
+    wk12: [{field:'VSSBP',label:'Systolic BP (mmHg)',val:'124',status:'ok'},{field:'ECDOSE',label:'Study Drug Dose (mg)',val:'75',status:'query',msg:'DOSE REDUCED TO 75MG. DOSE MODIFICATION CRF NOT COMPLETED.'},{field:'DSSTERM',label:'Disposition Term',val:'COMPLETED',status:'ok'}],
+  },
+  '004': {
+    scr:  [{field:'SUBJID',label:'Subject ID',val:'004-01',status:'ok'},{field:'SEX',label:'Sex',val:'M',status:'ok'},{field:'ICDAT',label:'Informed Consent Date',val:'2025-07-15',status:'ok'},{field:'DMDTC',label:'Date of First Dose',val:'2025-07-01',status:'query',msg:'FIRST DOSE DATE PRECEDES INFORMED CONSENT DATE. INCONSISTENT DATES · VERIFY WITH SITE.'}],
+    base: [{field:'VSSBP',label:'Systolic BP (mmHg)',val:'135',status:'ok'},{field:'VSWT',label:'Weight (kg)',val:'',status:'missing',msg:'BODY WEIGHT NOT RECORDED AT BASELINE. REQUIRED FOR DOSE CALCULATION.'},{field:'ECOG',label:'ECOG Performance Status',val:'1',status:'ok'}],
+    wk4:  [{field:'VSSBP',label:'Systolic BP (mmHg)',val:'132',status:'ok'},{field:'ECDOSE',label:'Study Drug Dose (mg)',val:'100',status:'ok'},{field:'ECOG',label:'ECOG Performance Status',val:'1',status:'ok'}],
+    wk8:  [{field:'VSSBP',label:'Systolic BP (mmHg)',val:'128',status:'ok'},{field:'ECDOSE',label:'Study Drug Dose (mg)',val:'100',status:'ok'},{field:'ECOG',label:'ECOG Performance Status',val:'2',status:'ok'}],
+    wk12: [{field:'VSSBP',label:'Systolic BP (mmHg)',val:'126',status:'ok'},{field:'ECDOSE',label:'Study Drug Dose (mg)',val:'100',status:'ok'},{field:'DSSTERM',label:'Disposition Term',val:'COMPLETED',status:'ok'}],
+  },
+};
+
+var VISIT_LABELS = {scr:'Screening',base:'Baseline',wk4:'Week 4',wk8:'Week 8',wk12:'Week 12'};
+var ALL_TABS = ['query','editcheck','completeness','sae','rave'];
+
+function switchTab(tab) {
+  ALL_TABS.forEach(function(t) {
+    var el = document.getElementById('tab-'+t);
+    if (el) el.style.display = t === tab ? 'block' : 'none';
+  });
+  document.querySelectorAll('.tab').forEach(function(el,i) {
+    el.classList.toggle('active', ALL_TABS[i] === tab);
+  });
+  if (tab === 'completeness') renderCompleteness();
+  if (tab === 'rave') renderRave();
+}
+
+function runQueryCheck() {
+  var open = QUERIES.filter(function(q){return q.status==='open';}).length;
+  var closed = QUERIES.filter(function(q){return q.status==='closed';}).length;
+  var critical = QUERIES.filter(function(q){return q.sev==='critical';}).length;
+  var rate = Math.round((closed / QUERIES.length) * 100);
+  animateNum('open-queries', open);
+  animateNum('closed-queries', closed);
+  animateNum('critical-queries', critical);
+  document.getElementById('query-rate').textContent = rate + '%';
+  var tbody = document.getElementById('query-tbody');
+  tbody.innerHTML = '';
+  QUERIES.forEach(function(q) {
+    var sevClass = q.sev === 'critical' ? 'sev-critical' : q.sev === 'major' ? 'sev-major' : 'sev-minor';
+    var statusClass = q.status === 'open' ? 'status-open' : 'status-closed';
+    var tr = document.createElement('tr');
+    tr.innerHTML = '<td class="subject">'+q.subj+'</td><td>'+q.visit+'</td><td style="font-family:JetBrains Mono,monospace;font-size:11px;color:var(--navy)">'+q.field+'</td><td>'+q.desc+'</td><td><span class="severity '+sevClass+'">'+q.sev.toUpperCase()+'</span></td><td class="'+statusClass+'">'+q.status.toUpperCase()+'</td>';
+    tbody.appendChild(tr);
+  });
+  document.getElementById('query-results').classList.add('show');
+}
+
+function runEditChecks() {
+  var grid = document.getElementById('spec-grid');
+  grid.innerHTML = '';
+  EDITCHECKS.forEach(function(ec) {
+    var triggered = ec.result === 'FAIL';
+    var div = document.createElement('div');
+    div.className = 'spec-card ' + (triggered ? 'triggered' : 'passed');
+    div.innerHTML = '<div class="spec-name">'+ec.name+'</div><div class="spec-rule">'+ec.rule+'</div><div style="font-size:11px;color:var(--muted);margin-bottom:6px;">'+ec.subject+' · '+ec.detail+'</div><div class="spec-result '+(triggered?'fail':'pass')+'">'+(triggered ? '✗ TRIGGERED · QUERY GENERATED' : '✓ PASSED')+'</div>';
+    grid.appendChild(div);
+  });
+  document.getElementById('editcheck-results').classList.add('show');
+}
+
+function renderCompleteness() {
+  var subj = document.getElementById('subject-select').value;
+  var data = COMPLETENESS[subj];
+  var html = '';
+  data.forEach(function(v) {
+    var barClass = v.status === 'complete' ? 'bar-complete' : v.status === 'partial' ? 'bar-partial' : 'bar-missing';
+    html += '<div class="timeline-row"><div class="visit-label">'+v.visit+'</div><div style="flex:1;background:var(--surface);border-radius:4px;overflow:hidden;height:28px;"><div class="visit-bar '+barClass+'" style="width:'+v.pct+'%;min-width:40px;">'+v.pct+'%</div></div></div>';
+  });
+  document.getElementById('completeness-chart').innerHTML = html;
+}
+
+function runSAEReconciliation() {
+  var grid = document.getElementById('sae-grid');
+  grid.innerHTML = '';
+  SAE_DATA.forEach(function(sae) {
+    var div = document.createElement('div');
+    div.className = 'sae-card';
+    div.innerHTML = '<div class="sae-id">'+sae.id+'</div><div class="sae-event">'+sae.event+'</div><div class="sae-row"><span>Onset Date</span><span>'+sae.onset+'</span></div><div class="sae-row"><span>CDM Database</span><span>'+sae.cdm_date+'</span></div><div class="sae-row"><span>Safety Database</span><span>'+sae.safety_date+'</span></div><div class="sae-row"><span>Drug Related</span><span>'+sae.related+'</span></div><div class="sae-row"><span>Outcome</span><span>'+sae.outcome+'</span></div><div class="sae-row"><span>Reconciliation</span><span class="sae-match '+sae.match+'">'+(sae.match==='ok'?'✓ MATCHED':'✗ DISCREPANCY · QUERY REQUIRED')+'</span></div>';
+    grid.appendChild(div);
+  });
+  document.getElementById('sae-results').classList.add('show');
+}
+
+function renderRave() {
+  var subj = document.getElementById('rave-subject').value;
+  var visit = document.getElementById('rave-visit').value;
+  var data = RAVE_DATA[subj][visit];
+  var queries = data.filter(function(f){return f.status!=='ok';}).length;
+  var clean = data.filter(function(f){return f.status==='ok';}).length;
+  var visitLabel = VISIT_LABELS[visit];
+
+  var h = '';
+  h += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;">';
+  h += '<div style="background:var(--surface);border-radius:8px;padding:12px;text-align:center;border:0.5px solid var(--border);"><span style="font-size:20px;font-weight:800;color:var(--green);display:block;">'+clean+'</span><div style="font-size:10px;color:var(--subtle);font-family:JetBrains Mono,monospace;margin-top:2px;">Clean fields</div></div>';
+  h += '<div style="background:var(--surface);border-radius:8px;padding:12px;text-align:center;border:0.5px solid var(--border);"><span style="font-size:20px;font-weight:800;color:var(--red);display:block;">'+queries+'</span><div style="font-size:10px;color:var(--subtle);font-family:JetBrains Mono,monospace;margin-top:2px;">Queries flagged</div></div>';
+  h += '<div style="background:var(--surface);border-radius:8px;padding:12px;text-align:center;border:0.5px solid var(--border);"><span style="font-size:20px;font-weight:800;color:var(--navy);display:block;">'+data.length+'</span><div style="font-size:10px;color:var(--subtle);font-family:JetBrains Mono,monospace;margin-top:2px;">Total fields</div></div>';
+  h += '</div>';
+
+  h += '<div style="border:1px solid var(--border2);border-radius:10px;overflow:hidden;">';
+  h += '<div style="background:var(--navy);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;">';
+  h += '<span style="font-family:JetBrains Mono,monospace;font-size:10px;color:rgba(255,255,255,0.8);letter-spacing:1px;">MEDIDATA RAVE · Subject '+subj+' · '+visitLabel+'</span>';
+  h += '<span style="font-family:JetBrains Mono,monospace;font-size:9px;color:rgba(255,255,255,0.4);">Phase II Oncology · Q2BI-2025-ONC-001</span>';
+  h += '</div>';
+
+  data.forEach(function(f) {
+    var bg = f.status==='ok' ? 'var(--card)' : f.status==='missing' ? '#fff8f8' : '#fffbf0';
+    var borderL = f.status==='ok' ? 'transparent' : f.status==='missing' ? 'var(--red)' : 'var(--amber)';
+    h += '<div style="padding:10px 16px;border-bottom:0.5px solid var(--border);background:'+bg+';border-left:3px solid '+borderL+';">';
+    h += '<div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;">';
+    h += '<div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;">';
+    h += '<span style="font-family:JetBrains Mono,monospace;font-size:10px;color:var(--subtle);min-width:70px;">'+f.field+'</span>';
+    h += '<span style="font-size:12px;font-weight:500;color:var(--ink);">'+f.label+'</span>';
+    h += '</div>';
+    if (f.status==='ok') {
+      h += '<span style="font-family:JetBrains Mono,monospace;font-size:12px;color:var(--navy);font-weight:500;">'+f.val+'</span>';
+    } else if (f.status==='missing') {
+      h += '<span style="font-family:JetBrains Mono,monospace;font-size:10px;color:var(--red);font-weight:600;">MISSING</span>';
+    } else {
+      h += '<span style="font-family:JetBrains Mono,monospace;font-size:11px;color:var(--amber);font-weight:600;">'+f.val+' · QUERY</span>';
+    }
+    h += '</div>';
+    if (f.msg) {
+      h += '<div style="margin-top:5px;font-size:10px;font-family:JetBrains Mono,monospace;color:'+(f.status==='missing'?'var(--red)':'#8a5500')+';">'+f.msg+'</div>';
+    }
+    h += '</div>';
+  });
+  h += '</div>';
+  document.getElementById('rave-content').innerHTML = h;
+}
+
+function animateNum(id, target) {
+  var el = document.getElementById(id);
+  var start = 0;
+  var step = Math.ceil(target / 20);
+  var timer = setInterval(function() {
+    start = Math.min(start + step, target);
+    el.textContent = start;
+    if (start >= target) clearInterval(timer);
+  }, 40);
+}
+
+window.addEventListener('load', function() {
+  renderCompleteness();
+  renderRave();
+});
+</script>
+</body>
+</html>
